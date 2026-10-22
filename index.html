@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoGo 群控台</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+</head>
+<body>
+
+<!-- ============ 安装/配置页（首次或数据库迁移后） ============ -->
+<div id="installView">
+  <div class="card auth-card">
+    <h1>AutoGo 群控台</h1>
+    <p class="sub">安装配置 · 后端连接</p>
+    <div class="notice-box">首次使用，或后端迁移后，请在此选择后端类型并填写连接信息，保存后即可使用。配置仅保存在当前浏览器。</div>
+
+    <label>后端类型</label>
+    <div class="btn-row" id="modeRow">
+      <button id="modeBtnSupabase" class="primary" onclick="setMode('supabase')">Supabase 云后端</button>
+      <button id="modeBtnServer" onclick="setMode('server')">自建 Server</button>
+    </div>
+
+    <div id="supabaseFields">
+      <label>Project URL（数据库地址）</label>
+      <input type="text" id="cfgUrl" placeholder="https://xxxx.supabase.co">
+      <label>anon key（匿名密钥）</label>
+      <input type="password" id="cfgKey" placeholder="eyJhbGciOi…">
+    </div>
+
+    <div id="serverFields" style="display:none;">
+      <label>服务器地址</label>
+      <input type="text" id="cfgServerUrl" placeholder="http://192.168.1.100:9000">
+      <label>鉴权 token（可选，与服务器 -token 一致；留空表示不鉴权）</label>
+      <input type="password" id="cfgServerToken" placeholder="token">
+      <div class="notice" style="margin-top:4px;">自建 Server 模式用 token 代替账号登录：填对 token 即进入。</div>
+    </div>
+
+    <div class="notice-box" style="margin-top:14px;">从备份恢复（可选）：选择后台导出的 JSON 备份，保存配置并登录后会自动把数据恢复到新数据库。</div>
+    <label>备份文件（.json）</label>
+    <input type="file" id="cfgBackup" accept=".json,application/json" onchange="onPickBackup(this.files[0])">
+    <div class="btn-row" style="justify-content:space-between;">
+      <button id="btnTestConn" onclick="testConnection()">测试连接</button>
+      <button class="primary" onclick="saveConfig()">保存并进入</button>
+    </div>
+    <div id="cfgMsg"></div>
+  </div>
+</div>
+
+<!-- ============ 登录页 ============ -->
+<div id="loginView" style="display:none;">
+  <div class="card auth-card">
+    <h1>AutoGo 群控台</h1>
+    <p class="sub">登录后管理手机设备与下发任务</p>
+    <label>邮箱</label>
+    <input type="text" id="loginEmail" placeholder="you@example.com" autocomplete="username">
+    <label>密码</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button id="btnLogin" class="primary" onclick="doLogin()">登 录</button>
+    <div id="loginMsg"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="link" onclick="backToInstall()">重新配置数据库</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div id="mainView" style="display:none;">
+  <header>
+    <h1>AutoGo 群控台</h1>
+    <div class="right">
+      <span id="whoami"></span>
+      <span id="devStat"></span>
+      <button onclick="logout()">退出</button>
+      <button onclick="backToInstall()">配置</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 设备区 -->
+    <section>
+      <h2 style="display:flex;justify-content:space-between;align-items:center;">手机设备 <button class="btn-link" onclick="refreshDevices()" style="min-height:0;">↻ 刷新在线状态</button></h2>
+      <div class="card-body">
+        <div id="deviceList" class="device-grid"><div class="empty">加载中…</div></div>
+        <div class="notice">在线状态在进入页面、点击刷新或选择目标设备时更新；手机端心跳+轮询默认 5 分钟一次，超过 15 分钟无心跳显示离线。离线设备也可看到最近信息。</div>
+      </div>
+    </section>
+
+    <!-- 操作区 -->
+    <section>
+      <h2>常用操作</h2>
+      <div class="card-body">
+        <label style="margin-top:0;">目标设备（不选 = 广播给所有在线设备）</label>
+        <select id="targetDev"></select>
+        <div class="grid" style="margin-top:12px;">
+
+          <div class="panel">
+            <h3>文件操作</h3>
+            <label>文件路径（如 /sdcard/Download/test.txt）</label>
+            <input type="text" id="fPath" placeholder="/sdcard/Download/xxx.txt">
+            <label>内容（写文件/追加用，读文件结果也显示在这里）</label>
+            <textarea id="fContent" placeholder="文件内容…"></textarea>
+            <div class="btn-row">
+              <button class="primary" onclick="sendTask('read_file')">读文件</button>
+              <button class="success" onclick="sendTask('write_file')">写文件</button>
+              <button onclick="sendTask('append_file')">追加</button>
+              <button class="danger" onclick="sendTask('delete_file')">删除</button>
+            </div>
+            <div class="btn-row">
+              <button onclick="sendTask('list_dir')">列目录</button>
+              <button onclick="sendTask('create_file')">新建文件</button>
+              <button onclick="sendTask('create_dir')">新建目录</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>系统与设备操作</h3>
+            <label>Shell 命令</label>
+            <input type="text" id="shCmd" placeholder="如：ls -la /sdcard">
+            <div class="btn-row">
+              <button class="primary" onclick="sendTask('shell')">执行 Shell</button>
+              <button onclick="sendTask('device_info')">设备信息</button>
+              <button onclick="sendTask('screenshot')">截屏</button>
+            </div>
+            <label>启动应用（包名）</label>
+            <input type="text" id="pkgName" placeholder="如：com.android.settings">
+            <div class="btn-row">
+              <button class="primary" onclick="sendTask('app_launch')">启动应用</button>
+              <button onclick="sendTask('go_home')">返回桌面</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>自定义任务（高级）</h3>
+            <label>操作类型 action</label>
+            <input type="text" id="cAction" placeholder="read_file / write_file / shell / app_launch …">
+            <label>参数 JSON（可留空）</label>
+            <textarea id="cParams" placeholder='{"path":"/sdcard/1.txt"}'></textarea>
+            <div class="btn-row">
+              <button class="primary" onclick="sendCustomTask()">下发任务</button>
+            </div>
+            <div class="notice">支持：read_file / write_file / append_file / delete_file / list_dir / create_file / create_dir / shell / device_info / screenshot / app_launch / go_home / js / ping。js 任务参数示例：{"script":"AutoGo.utils.Toast('hello',-1,-1,2000); log('done');"}。</div>
+          </div>
+
+          <div class="panel">
+            <h3>系统管理</h3>
+            <div class="notice" style="margin-top:0;">导出当前数据库（设备 + 任务）为 JSON 备份，用于迁移/存档；迁移时在安装页选择该备份即可恢复。</div>
+            <div class="btn-row">
+              <button class="primary" onclick="exportBackup()">导出备份 JSON</button>
+              <button class="danger" onclick="clearDoneTasks()">清理历史任务</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 任务区 -->
+    <section>
+      <h2 style="display:flex;justify-content:space-between;align-items:center;">任务列表（最近 100 条，20 秒自动刷新） <button class="btn-link" onclick="refreshTasks()" style="min-height:0;">↻ 刷新</button></h2>
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>操作</th><th>目标</th><th>设备</th><th>状态</th><th>创建时间</th><th></th></tr></thead>
+            <tbody id="taskBody"><tr><td colspan="7"><div class="empty">暂无任务</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

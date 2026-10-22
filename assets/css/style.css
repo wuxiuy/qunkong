@@ -1,0 +1,105 @@
+/* ============================================================
+   AutoGo 群控台 · 样式（移动优先）
+   默认布局以手机竖屏为目标（触控友好、单列、防 iOS 聚焦缩放）；
+   ≥768px 增强为 PC 多列布局。
+   ============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; background:#f2f4f7; color:#1f2937; font-size:15px; line-height:1.55; }
+
+/* ---------- 通用卡片 ---------- */
+.card { background:#fff; border-radius:14px; box-shadow:0 6px 24px rgba(0,0,0,.08); padding:22px 18px; }
+.auth-card { width:100%; max-width:100%; }
+.auth-card h1 { font-size:20px; color:#0f4c81; margin-bottom:4px; }
+.auth-card .sub { font-size:13px; color:#64748b; margin-bottom:16px; }
+.auth-card label { display:block; font-size:13px; color:#64748b; margin:12px 0 5px; }
+.auth-card input { width:100%; padding:12px 12px; border:1px solid #d4dae2; border-radius:8px; font-size:16px; }
+.auth-card input:focus { outline:2px solid #93c5fd; border-color:#3b82f6; }
+.auth-card button { width:100%; margin-top:12px; padding:12px; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; min-height:46px; }
+.auth-card .btn-row { display:flex; gap:10px; margin-top:12px; }
+.auth-card .btn-row button { width:auto; flex:1; margin-top:0; padding:10px; font-size:14px; min-height:44px; }
+.auth-card .btn-row button.primary { background:#0f4c81; color:#fff; }
+#cfgMsg, #loginMsg { margin-top:10px; font-size:13px; color:#dc2626; min-height:18px; text-align:center; }
+.notice-box { background:#eef6ff; border:1px solid #bcd7f2; border-radius:8px; padding:10px 12px; font-size:13px; color:#1e4d78; line-height:1.6; margin-bottom:8px; }
+
+/* ---------- 视图容器 ---------- */
+#installView, #loginView { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:14px; }
+
+/* ---------- 主界面 ---------- */
+header { background:#0f4c81; color:#fff; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:10; }
+header h1 { font-size:17px; }
+header .right { display:flex; align-items:center; gap:8px; font-size:13px; flex-wrap:wrap; }
+header button { background:rgba(255,255,255,.16); color:#fff; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; font-size:13px; min-height:38px; }
+header button:hover { background:rgba(255,255,255,.28); }
+main { padding:10px; max-width:1200px; margin:0 auto; }
+section { background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.08); margin-bottom:12px; overflow:hidden; }
+section > h2 { font-size:15px; padding:12px 14px; border-bottom:1px solid #eef1f4; background:#fafbfc; color:#0f4c81; }
+.card-body { padding:12px 12px; }
+/* 手机：操作面板单列堆叠 */
+.grid { display:grid; grid-template-columns:1fr; gap:12px; }
+.panel { border:1px solid #e5e9ee; border-radius:10px; padding:13px; background:#fcfdfe; }
+.panel h3 { font-size:14px; margin-bottom:10px; color:#334155; }
+label { display:block; font-size:13px; color:#64748b; margin:9px 0 4px; }
+input[type=text], input[type=password], textarea, select {
+  width:100%; padding:11px 10px; border:1px solid #d4dae2; border-radius:7px; font-size:16px;
+  font-family:Consolas,"Microsoft YaHei",monospace; background:#fff; color:#1f2937;
+}
+textarea { resize:vertical; min-height:64px; }
+input:focus, textarea:focus, select:focus { outline:2px solid #93c5fd; border-color:#3b82f6; }
+.btn-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+/* 手机：按钮触控目标 ≥44px */
+button { padding:11px 14px; border:none; border-radius:7px; font-size:14px; cursor:pointer; font-weight:600; min-height:44px; background:#eef2f6; color:#334155; }
+button:hover { filter:brightness(.95); }
+button.primary { background:#0f4c81; color:#fff; }
+button.success { background:#059669; color:#fff; }
+button.danger { background:#dc2626; color:#fff; }
+button.link { background:none; color:#0f4c81; font-size:13px; min-height:0; padding:6px 6px; }
+
+/* ---------- 设备区 ---------- */
+/* 手机：设备卡单列 */
+.device-grid { display:grid; grid-template-columns:1fr; gap:12px; }
+.device-card { border:1px solid #e5e9ee; border-radius:10px; padding:12px; background:#fff; }
+.device-card .top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.device-card .name { font-weight:700; font-size:14px; word-break:break-all; }
+.device-card .meta { font-size:12px; color:#64748b; margin-top:7px; line-height:1.75; word-break:break-all; }
+.device-card .run { font-size:12px; color:#334155; margin-top:6px; background:#f8fafc; border-radius:6px; padding:6px 8px; line-height:1.6; }
+
+/* ---------- 标签 ---------- */
+.tag { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
+.tag.online { background:#d1fae5; color:#047857; }
+.tag.offline { background:#fee2e2; color:#b91c1c; }
+.tag.pending { background:#fef3c7; color:#b45309; }
+.tag.taken { background:#dbeafe; color:#1d4ed8; }
+.tag.done { background:#d1fae5; color:#047857; }
+.tag.failed { background:#fee2e2; color:#b91c1c; }
+
+/* ---------- 任务区 ---------- */
+.empty { color:#94a3b8; font-size:13px; text-align:center; padding:16px 0; }
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+th, td { text-align:left; padding:9px 10px; border-bottom:1px solid #f0f2f5; vertical-align:top; word-break:break-all; }
+th { background:#fafbfc; color:#475569; font-size:12px; white-space:nowrap; }
+tr:hover td { background:#f8fafc; }
+.task-result { display:none; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:6px; padding:10px;
+  font-family:Consolas,monospace; font-size:12px; white-space:pre-wrap; max-height:260px; overflow:auto; margin-top:8px; }
+.task-result.show { display:block; }
+.task-result img { max-width:100%; border-radius:6px; }
+.btn-link { background:none; color:#0f4c81; padding:4px 4px; min-height:0; font-weight:600; font-size:12px; }
+.notice { font-size:12px; color:#64748b; margin-top:7px; }
+
+/* ---------- PC / 平板横屏增强（≥768px） ---------- */
+@media (min-width:768px){
+  body { font-size:14px; }
+  main { padding:16px 20px; }
+  section { margin-bottom:16px; }
+  .card { padding:28px 26px; }
+  .auth-card { max-width:380px; }
+  .grid { grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .device-grid { grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+  .card-body { padding:14px 16px; }
+  section > h2 { padding:12px 16px; }
+  button { padding:9px 13px; font-size:13px; min-height:36px; }
+  input[type=text], input[type=password], textarea, select { padding:9px 10px; font-size:14px; }
+  th, td { padding:9px 12px; }
+  header { padding:12px 20px; }
+  header button { min-height:32px; padding:6px 12px; }
+}
